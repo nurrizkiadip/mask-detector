@@ -1,5 +1,5 @@
 {
-  "name": "app-starter-project-with-webpack",
+  "name": "mask-detector-app",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -26,6 +26,5 @@
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^4.22.0"
   }
 }

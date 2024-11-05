@@ -1,8 +1,7 @@
 import HomePresenter from './home-presenter';
 import Camera from '../../utils/camera';
-import {browser} from '@tensorflow/tfjs';
 import {generateMaskImageTemplate} from '../../utils/templates';
-import {convertBlobToBase64, indexOfMaxNumber} from '../../utils';
+import {convertBlobToBase64} from '../../utils';
 
 export default class HomePage {
   #presenter;
@@ -72,10 +71,10 @@ export default class HomePage {
   }
 
   async afterRender() {
-    await this.#presenter.loadModel();
     this._form = document.querySelector('#detection-form');
-
     this._initialListener();
+
+    await this.#presenter.loadModel();
   }
 
   _initialListener() {
@@ -141,32 +140,9 @@ export default class HomePage {
       return;
     }
 
-    const imageElement = new Image();
-    imageElement.src = imageUrl;
+    // Do the prediction here...
 
-    // Wait until image is loaded
-    await new Promise((resolve) => {
-      imageElement.onload = resolve;
-    });
-
-    // Preprocessing gambar agar sesuai dengan input model (sesuaikan ukuran dengan model Anda)
-    const tensor = await browser.fromPixelsAsync(imageElement);
-    const processedImg = tensor
-      .resizeNearestNeighbor([224, 224]) // Sesuaikan ukuran ini
-      .toFloat() // Agar lebih mudah diproses
-      .div(255.0) // Normalisasi ke [0,1]
-      .expandDims()
-    ;
-
-    // Melakukan prediksi
-    const predictions = await this.#model.predict(processedImg).data();
-    console.log(predictions)
-    const result = this.#model.classes[indexOfMaxNumber(predictions)];
-
-    // Cleanup model
-    processedImg.dispose();
-
-    return result;
+    return 'mask';
   }
 
   _setupCamera() {
@@ -218,12 +194,6 @@ export default class HomePage {
   }
 
   _showPredictResult(result) {
-    let text = 'Memakai Masker';
-
-    if (result === 'Without_mask') {
-      text = 'Tidak Memakai Masker';
-    }
-
-    window.alert(`Hasil: ${text}`);
+    // Do the result logic here...
   }
 }
