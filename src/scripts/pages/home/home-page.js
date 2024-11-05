@@ -72,10 +72,10 @@ export default class HomePage {
   }
 
   async afterRender() {
-    await this.#presenter.loadModel();
     this._form = document.querySelector('#detection-form');
-
     this._initialListener();
+
+    this.#presenter.loadModel();
   }
 
   _initialListener() {
@@ -160,7 +160,6 @@ export default class HomePage {
 
     // Melakukan prediksi
     const predictions = await this.#model.predict(processedImg).data();
-    console.log(predictions)
     const result = this.#model.classes[indexOfMaxNumber(predictions)];
 
     // Cleanup model
@@ -169,7 +168,7 @@ export default class HomePage {
     return result;
   }
 
-  _setupCamera() {
+  async _setupCamera() {
     const video = document.getElementById('camera-video');
     const canvas = document.getElementById('camera-canvas');
 
@@ -181,7 +180,9 @@ export default class HomePage {
     this._camera.launch();
 
     document.querySelector('#camera-list-front-back').addEventListener('change', async (event) => {
-      const isFrontCamera = event.currentTarget.value === 'front';
+      const isFrontCamera = event.srcElement.value === 'front';
+      this._camera.stop();
+
       this._camera.launch(isFrontCamera);
     });
 

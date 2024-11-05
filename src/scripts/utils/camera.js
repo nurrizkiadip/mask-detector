@@ -74,11 +74,7 @@ export default class Camera {
   }
 
   async launch(frontCamera = true) {
-    if (frontCamera) {
-      this.#currentStream = await this._getFrontCameraStream();
-    } else {
-      this.#currentStream = await this._getCameraStream();
-    }
+    this.#currentStream = await this._getCameraStream(frontCamera);
 
     this.#videoElement.srcObject = this.#currentStream;
     this.#videoElement.play();
@@ -97,60 +93,34 @@ export default class Camera {
       this.#streaming = false;
     }
 
-    if (this.#currentStream instanceof MediaStream) {
-      this.#currentStream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    }
-
     Camera.stopAllStreams();
-
-    this.#cheeseButtonElement.removeEventListener('click', this.#cheeseButtonHandler);
   }
 
-  async _getFrontCameraStream() {
+  async _getCameraStream(isFrontCamera = true) {
     try {
       return await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: { exact: 'user' },
+          facingMode: {
+            exact: isFrontCamera ? 'user' : 'environment',
+          },
         },
       });
     } catch (error) {
       if (error.name === 'OverconstrainedError') {
+        console.error('_getStream: OverconstrainedError:', error);
+
         try {
           return await navigator.mediaDevices.getUserMedia({
             video: true,
           });
         } catch (fallbackError) {
           console.error('_getStream: fallbackError:', fallbackError);
+          window.alert(fallbackError.message);
           return null;
         }
       } else {
         console.error('_getStream: error:', error);
-        return null;
-      }
-    }
-  }
-
-  async _getCameraStream() {
-    try {
-      return await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: 'environment' },
-        },
-      });
-    } catch (error) {
-      if (error.name === 'OverconstrainedError') {
-        try {
-          return await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-        } catch (fallbackError) {
-          console.error('_getStream: fallbackError:', fallbackError);
-          return null;
-        }
-      } else {
-        console.error('_getStream: error:', error);
+        window.alert(error.message);
         return null;
       }
     }
